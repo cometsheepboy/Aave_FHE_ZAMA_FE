@@ -1,13 +1,13 @@
-import Button from "@mui/material/Button";
-import type { NextPage } from "next";
-import Image from "next/image";
 import { MIN_WRAP_THRESHOLD, pools } from "@/constants";
-import { useCallback } from "react";
-import moment from "moment";
 import { useMainContext } from "@/hooks";
 import { Pool } from "@/types";
-import { useAccount } from "wagmi";
+import Button from "@mui/material/Button";
 import { ConnectKitButton } from "connectkit";
+import moment from "moment";
+import type { NextPage } from "next";
+import Image from "next/image";
+import { useCallback } from "react";
+import { useAccount } from "wagmi";
 
 const Relayer: NextPage = () => {
   const { isConnected } = useAccount();
@@ -21,7 +21,7 @@ const Relayer: NextPage = () => {
         ? "#" + epochInfo[token.toLowerCase()].currentEpoch
         : "--";
     },
-    [epochInfo]
+    [epochInfo, isConnected, wrap]
   );
 
   const getWrapBtn = useCallback(
@@ -57,7 +57,7 @@ const Relayer: NextPage = () => {
         return "--";
       }
     },
-    [epochInfo, wrap]
+    [epochInfo]
   );
 
   return (

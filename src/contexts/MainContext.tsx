@@ -1,20 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useMemo,
-} from "react";
-import { createInstance, FhevmInstance, initFhevm } from "fhevmjs";
+import CustomNotification from "@/components/CustomNotification";
 import { WRAPPER_ADDRESS } from "@/constants";
-import {
-  useAccount,
-  useChainId,
-  useConnectorClient,
-  useSignTypedData,
-  useSwitchChain,
-} from "wagmi";
 import {
   Asset,
   EpochInfo,
@@ -22,7 +7,6 @@ import {
   RedeemableInfo,
   WalletBalances,
 } from "@/types";
-import { BrowserProvider } from "ethers";
 import {
   getEpochInfo,
   getFaucetContract,
@@ -32,10 +16,24 @@ import {
   getTokens,
   getWrapperContract,
 } from "@/utils";
-import { ZeroAddress } from "ethers";
-import { Id as ToastId, ToastContainer, toast } from "react-toastify";
-import { formatUnits } from "ethers";
-import CustomNotification from "@/components/CustomNotification";
+import { BrowserProvider, formatUnits, ZeroAddress } from "ethers";
+import { createInstance, FhevmInstance, initFhevm } from "fhevmjs";
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { toast, ToastContainer, Id as ToastId } from "react-toastify";
+import {
+  useAccount,
+  useChainId,
+  useConnectorClient,
+  useSignTypedData,
+  useSwitchChain,
+} from "wagmi";
 import { sepolia } from "wagmi/chains";
 
 interface IMainContext {
@@ -85,7 +83,9 @@ const MainProvider = ({ children }: PropsWithChildren) => {
   const [epochInfo, setEpochInfo] = useState<EpochInfo>({});
   const [redeemableInfo, setRedeemableInfo] = useState<RedeemableInfo>({});
   const [fvmInitialized, setFvmInitialized] = useState(false);
-  const [reloadInterval, setReloadInterval] = useState<any>();
+  const [reloadInterval, setReloadInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   const provider = useMemo(() => {
     if (connectorClient) {
@@ -509,7 +509,7 @@ const MainProvider = ({ children }: PropsWithChildren) => {
         }
       }
     },
-    [provider, updateEpochInfo, updateBalances]
+    [provider]
   );
 
   const redeem = useCallback(
@@ -578,7 +578,7 @@ const MainProvider = ({ children }: PropsWithChildren) => {
         }
       }
     },
-    [provider, updateRedeemableAmounts, updateBalances]
+    [provider]
   );
 
   useEffect(() => {
@@ -636,7 +636,7 @@ const MainProvider = ({ children }: PropsWithChildren) => {
             types: { Reencrypt: eip712.types.Reencrypt },
             primaryType: "Reencrypt", //eip712.primaryType,
             message: eip712.message,
-            domain: eip712.domain as any,
+            domain: eip712.domain as Record<string, unknown>,
           });
 
           const decryptedValue = await fhEVMInstance.reencrypt(
@@ -685,6 +685,7 @@ const MainProvider = ({ children }: PropsWithChildren) => {
             autoClose: 5000,
           });
         }
+        console.error(err);
       }
     },
     [fhEVMInstance, address, signTypedDataAsync]

@@ -4,6 +4,10 @@ import {
   pools,
   WRAPPER_ADDRESS,
 } from "@/constants";
+import FaucetAbi from "@/constants/abis/Faucet.json";
+import ERC20Abi from "@/constants/abis/FaucetERC20.json";
+import MulticallAbi from "@/constants/abis/Multicall.json";
+import WrapperAbi from "@/constants/abis/Wrapper.json";
 import {
   Asset,
   EpochInfo,
@@ -11,17 +15,14 @@ import {
   RedeemableInfo,
   WalletBalances,
 } from "@/types";
-import { Contract, formatUnits, Interface, ContractRunner } from "ethers";
-import MulticallAbi from "@/constants/abis/Multicall.json";
-import ERC20Abi from "@/constants/abis/FaucetERC20.json";
-import WrapperAbi from "@/constants/abis/Wrapper.json";
-import FaucetAbi from "@/constants/abis/Faucet.json";
+import { Contract, ContractRunner, formatUnits, Interface } from "ethers";
 
 export const getWalletHumanBalance = (
   balances: WalletBalances,
   token: Asset | Pool
 ) => {
-  const asset: Asset = (token as any).asset ?? token;
+  const asset: Asset =
+    "asset" in token && token.asset ? token.asset : (token as Asset);
 
   if (balances[token.address.toLowerCase()] !== undefined) {
     return (
@@ -55,7 +56,8 @@ export const getTokenBalances = async (
   const results = await multicall.aggregate3.staticCall(calls);
 
   return results.map(
-    (res: any) => ERC20Iface.decodeFunctionResult("balanceOf", res[1])[0]
+    (res: { success: boolean; returnData: string }) =>
+      ERC20Iface.decodeFunctionResult("balanceOf", res.returnData)[0]
   );
 };
 
@@ -140,7 +142,10 @@ export const getRedeemableAmounts = async (
 
     if (!_epochInfo) continue;
 
-    const resOfToken: any = { amounts: [], epoch: [] };
+    const resOfToken: { amounts: bigint[]; epoch: number[] } = {
+      amounts: [],
+      epoch: [],
+    };
 
     for (let i = 0; i < _epochInfo.currentEpoch; i += 1) {
       const hasWithdrawn = WrapperIface.decodeFunctionResult(
