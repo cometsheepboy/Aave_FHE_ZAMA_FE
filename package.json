@@ -1,0 +1,36 @@
+{
+  "name": "zama-test-interface",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.1",
+    "connectkit": "^1.9.0",
+    "ethers": "^6.13.5",
+    "fhevmjs": "^0.6.2",
+    "moment": "^2.30.1",
+    "next": "15.2.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-toastify": "^11.0.5",
+    "wagmi": "^2.14.16"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
